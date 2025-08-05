@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>मराठी + English कॅल्क्युलेटर (हिस्ट्रीसह)</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap');
+
+    body {
+        font-family: 'Noto Sans Devanagari', sans-serif;
+        background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 20px;
+        margin: 0;
+    }
+    .calculator {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        width: 320px;
+        margin-bottom: 20px;
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #ff6600;
+    }
+    input {
+        width: 100%;
+        height: 55px;
+        font-size: 22px;
+        text-align: right;
+        padding: 10px;
+        margin-bottom: 12px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: #f9f9f9;
+    }
+    .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    button {
+        padding: 15px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background-color: #ff9800;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.15s, background 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    button:hover {
+        background-color: #e68900;
+        transform: scale(1.05);
+    }
+    .marathi {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .english {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+    .equal {
+        background-color: #4caf50;
+    }
+    .equal:hover {
+        background-color: #3d8b40;
+    }
+    .clear {
+        background-color: #f44336;
+    }
+    .clear:hover {
+        background-color: #d32f2f;
+    }
+    .history {
+        background: white;
+        padding: 10px;
+        border-radius: 15px;
+        width: 320px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .history h3 {
+        text-align: center;
+        color: #333;
+        margin-top: 0;
+    }
+    .history-item {
+        padding: 5px 10px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .history-item:hover {
+        background: #f0f0f0;
+    }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>मराठी + English कॅल्क्युलेटर</h2>
+    <input type="text" id="display" readonly>
+    <div class="buttons">
+        <button onclick="appendValue('7')"><span class="marathi">७</span><span class="english">7</span></button>
+        <button onclick="appendValue('8')"><span class="marathi">८</span><span class="english">8</span></button>
+        <button onclick="appendValue('9')"><span class="marathi">९</span><span class="english">9</span></button>
+        <button onclick="appendValue('/')"><span class="marathi">÷</span><span class="english">/</span></button>
+
+        <button onclick="appendValue('4')"><span class="marathi">४</span><span class="english">4</span></button>
+        <button onclick="appendValue('5')"><span class="marathi">५</span><span class="english">5</span></button>
+        <button onclick="appendValue('6')"><span class="marathi">६</span><span class="english">6</span></button>
+        <button onclick="appendValue('*')"><span class="marathi">×</span><span class="english">*</span></button>
+
+        <button onclick="appendValue('1')"><span class="marathi">१</span><span class="english">1</span></button>
+        <button onclick="appendValue('2')"><span class="marathi">२</span><span class="english">2</span></button>
+        <button onclick="appendValue('3')"><span class="marathi">३</span><span class="english">3</span></button>
+        <button onclick="appendValue('-')"><span class="marathi">−</span><span class="english">-</span></button>
+
+        <button onclick="appendValue('0')"><span class="marathi">०</span><span class="english">0</span></button>
+        <button onclick="appendValue('.')"><span class="marathi">.</span><span class="english">.</span></button>
+        <button onclick="calculate()" class="equal"><span class="marathi">=</span><span class="english">=</span></button>
+        <button onclick="appendValue('+')"><span class="marathi">+</span><span class="english">+</span></button>
+
+        <button onclick="clearDisplay()" class="clear" style="grid-column: span 4;">
+            <span class="marathi">साफ करा</span>
+            <span class="english">Clear</span>
+        </button>
+    </div>
+</div>
+
+<div class="history">
+    <h3>📜 हिस्ट्री</h3>
+    <div id="historyList"></div>
+</div>
+
+<script>
+let history = [];
+
+function appendValue(val) {
+    document.getElementById("display").value += val;
+}
+
+function calculate() {
+    try {
+        let display = document.getElementById("display");
+        let result = eval(display.value);
+        
+        if (display.value !== "" && !isNaN(result)) {
+            // Save to history
+            history.unshift(display.value + " = " + result);
+            updateHistory();
+            display.value = result;
+        }
+    } catch {
+        alert("चुकीचा इनपुट");
+    }
+}
+
+function clearDisplay() {
+    document.getElementById("display").value = "";
+}
+
+function updateHistory() {
+    let historyList = document.getElementById("historyList");
+    historyList.innerHTML = "";
+    history.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "history-item";
+        div.innerText = item;
+        div.onclick = function() {
+            document.getElementById("display").value = item.split(" = ")[0];
+        };
+        historyList.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>
